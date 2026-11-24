@@ -1,0 +1,49 @@
+================================================================================
+PRACTICE 07 – FIRST AUTOMATED TEST SUITE
+Smart Campus Room Availability Checker
+File: src/checkAvailability.test.ts
+Created: 2026-10-13
+================================================================================
+
+Test target: checkAvailability(start, end, currentMinutes, room, bookings)
+            from src/checkAvailability.ts
+
+Fixture (fresh per test):
+  currentMinutes = 540          (09:00)
+  room           = { id: 'r1', name: 'Room 101', building: 'Engineering Block',
+                     capacity: 40, blocked: false }
+  bookings       = [{ id: 'test-b1', roomId: 'r1', title: 'Test Booking',
+                     start: 600, end: 660 }]
+
+Test cases (T01–T17):
+--------------------------------------------------------------------------------
+T01  start=660  end=720   expected=true   660→720 free slot after booking
+T02  start=540  end=570   expected=false  start == current (not strictly after)
+T03  start=720  end=720   expected=false  zero-length interval (start >= end)
+T04  start=750  end=720   expected=false  start > end (invalid interval)
+T05  start=1380 end=1441  expected=false  end beyond 24:00 (1440)
+T06  start=720  end=840   expected=true   exactly 120 min, future, no overlap
+T07  start=720  end=841   expected=false  duration 121 min > 120 limit
+T08  start=570  end=600   expected=true   ends when existing booking starts (touch)
+T09  start=630  end=690   expected=false  partial overlap with 600→660
+T10  start=570  end=690   expected=false  overlaps existing 600→660
+T11  start=615  end=645   expected=false  fully inside existing 600→660
+T12  start=600  end=660   expected=false  identical to existing booking
+T13  start=660  end=720   expected=false  room.blocked = true
+T14  start=630  end=690   expected=true   bookings = [] (no conflicts)
+T15  —          —         verify bookings array unchanged after multiple checks
+T16  start=541  end=600   expected=true   start one minute after current
+T17  start=539  end=570   expected=false  start one minute before current
+
+Coverage of Acceptance Criteria:
+  AC1 (valid interval + future start)        → T01, T02, T03, T04, T05, T16, T17
+  AC2 (max duration ≤ 120 min)               → T06, T07
+  AC3 (room not blocked)                     → T13
+  AC4 (no overlap, touching allowed)         → T08, T09, T10, T11, T12, T14
+  AC5 (UI visual behaviour)                  → manual (not automated in this suite)
+  AC6 (UI visual behaviour)                  → manual (not automated in this suite)
+  Immutability (no mutation of bookings)     → T15
+
+================================================================================
+END OF FILE
+================================================================================
